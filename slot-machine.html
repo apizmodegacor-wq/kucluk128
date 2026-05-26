@@ -19,7 +19,7 @@
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       background: rgba(0, 0, 0, 0.9);
       padding: 30px;
@@ -29,14 +29,14 @@
 
     h1 {
       font-size: 48px;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }
 
     .stats {
       display: flex;
       justify-content: space-around;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       background: rgba(255, 255, 255, 0.1);
       padding: 15px;
       border-radius: 10px;
@@ -61,12 +61,66 @@
     }
 
     .balance {
-      font-size: 20px;
-      margin-bottom: 20px;
+      font-size: 22px;
+      margin-bottom: 15px;
       padding: 15px;
       background: rgba(74, 222, 128, 0.1);
       border-left: 4px solid #4ade80;
       border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .bet-section {
+      background: rgba(251, 191, 36, 0.1);
+      border: 2px solid #fbbf24;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .bet-label {
+      font-size: 14px;
+      color: #fbbf24;
+      font-weight: bold;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .bet-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .bet-btn {
+      padding: 12px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 2px solid #fbbf24;
+      border-radius: 8px;
+      background: rgba(251, 191, 36, 0.1);
+      color: #fbbf24;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .bet-btn:hover {
+      background: rgba(251, 191, 36, 0.3);
+      transform: scale(1.05);
+    }
+
+    .bet-btn.active {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1f2937;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+    }
+
+    .current-bet {
+      font-size: 18px;
+      color: #fbbf24;
+      margin-top: 12px;
+      font-weight: bold;
     }
 
     .slots-container {
@@ -297,13 +351,25 @@
       <div class="stat-value" id="wins">0</div>
     </div>
     <div class="stat-item">
-      <div class="stat-label">Tingkat Menang</div>
-      <div class="stat-value" id="winRate">0%</div>
+      <div class="stat-label">Total Bet</div>
+      <div class="stat-value" id="totalBet">0</div>
     </div>
   </div>
 
   <div class="balance">
     💰 Saldo: <span id="balance">1000</span> Koin
+  </div>
+
+  <div class="bet-section">
+    <div class="bet-label">💵 Pilih Bet Amount</div>
+    <div class="bet-buttons">
+      <button class="bet-btn active" onclick="setBet(400)">400</button>
+      <button class="bet-btn" onclick="setBet(800)">800</button>
+      <button class="bet-btn" onclick="setBet(1000)">1000</button>
+      <button class="bet-btn" onclick="setBet(2000)">2000</button>
+      <button class="bet-btn" onclick="setBet(5000)">5000</button>
+    </div>
+    <div class="current-bet">BET AKTIF: <span id="currentBet">400</span> Koin</div>
   </div>
 
   <div class="slots-container">
@@ -335,17 +401,18 @@
   <div class="message" id="message"></div>
 
   <div class="tile-guide">
-    <div class="guide-item"><span class="guide-icon">🐉</span> Naga +200</div>
-    <div class="guide-item"><span class="guide-icon">🦅</span> Phoenix +50</div>
-    <div class="guide-item"><span class="guide-icon">🐅</span> Harimau +50</div>
-    <div class="guide-item"><span class="guide-icon">🦆</span> Crane +50</div>
-    <div class="guide-item"><span class="guide-icon">🌸</span> Bunga +50</div>
-    <div class="guide-item"><span class="guide-icon">🌼</span> Bunga Chrysant +50</div>
+    <div class="guide-item"><span class="guide-icon">🐉</span> Naga x200</div>
+    <div class="guide-item"><span class="guide-icon">🦅</span> Phoenix x50</div>
+    <div class="guide-item"><span class="guide-icon">🐅</span> Harimau x50</div>
+    <div class="guide-item"><span class="guide-icon">🦆</span> Crane x50</div>
+    <div class="guide-item"><span class="guide-icon">🌸</span> Bunga x50</div>
+    <div class="guide-item"><span class="guide-icon">🌼</span> Chrysant x50</div>
   </div>
 
   <div class="info">
-    <p>✨ Tiga tile yang sama = JACKPOT!</p>
-    <p>🏆 Jackpot: +200 Koin | Menang: +50 Koin | Kalah: -100 Koin</p>
+    <p>✨ 3 Tile Sama = JACKPOT (x200 BET)</p>
+    <p>2 Tile Sama = MENANG (x50 BET)</p>
+    <p>Tidak Ada = KALAH (-BET)</p>
   </div>
 
   <div class="results-history" id="history"></div>
@@ -365,9 +432,11 @@ let stats = {
   spins: 0,
   wins: 0,
   balance: 1000,
+  totalBet: 0,
   history: []
 };
 
+let currentBet = 400;
 let isSpinning = false;
 
 function loadStats() {
@@ -386,10 +455,7 @@ function updateDisplay() {
   document.getElementById('spins').textContent = stats.spins;
   document.getElementById('wins').textContent = stats.wins;
   document.getElementById('balance').textContent = stats.balance;
-  
-  const winRate = stats.spins > 0 ? Math.round((stats.wins / stats.spins) * 100) : 0;
-  document.getElementById('winRate').textContent = winRate + '%';
-  
+  document.getElementById('totalBet').textContent = stats.totalBet;
   updateHistory();
 }
 
@@ -403,6 +469,16 @@ function updateHistory() {
   historyDiv.innerHTML = stats.history.slice(-5).reverse().map(item => 
     `<div class="history-item">${item}</div>`
   ).join('');
+}
+
+function setBet(amount) {
+  currentBet = amount;
+  document.getElementById('currentBet').textContent = amount;
+  
+  // Update button active state
+  const betButtons = document.querySelectorAll('.bet-btn');
+  betButtons.forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
 }
 
 function getRandomTile() {
@@ -419,9 +495,9 @@ function createTileHTML(tile) {
 }
 
 function spin() {
-  if (isSpinning || stats.balance < 10) {
-    if (stats.balance < 10) {
-      showMessage('❌ Saldo tidak cukup! Reset permainan untuk bermain lagi.', 'lose');
+  if (isSpinning || stats.balance < currentBet) {
+    if (stats.balance < currentBet) {
+      showMessage(`❌ Saldo tidak cukup! Saldo: ${stats.balance} < Bet: ${currentBet}`, 'lose');
     }
     return;
   }
@@ -429,7 +505,8 @@ function spin() {
   isSpinning = true;
   document.getElementById('spinBtn').disabled = true;
   
-  stats.balance -= 10;
+  stats.balance -= currentBet;
+  stats.totalBet += currentBet;
   stats.spins += 1;
 
   const tileElements = [
@@ -471,20 +548,22 @@ function spin() {
 
 function checkResult(a, b, c) {
   const timestamp = new Date().toLocaleTimeString('id-ID');
+  let winAmount = 0;
   
   if (a.value === b.value && b.value === c.value) {
     stats.wins += 1;
-    stats.balance += 200;
-    showMessage(`🎉 JACKPOT! 3x ${a.name}! Anda menang 200 koin!`, 'jackpot');
-    stats.history.push(`${timestamp} - JACKPOT! 3x ${a.name} (+200 koin)`);
+    winAmount = currentBet * 200;
+    stats.balance += winAmount;
+    showMessage(`🎉 JACKPOT! 3x ${a.name}! Anda menang ${winAmount} koin (x200)!`, 'jackpot');
+    stats.history.push(`${timestamp} - JACKPOT! 3x ${a.name} BET:${currentBet} WIN:+${winAmount}`);
   } else if ((a.value === b.value) || (b.value === c.value) || (a.value === c.value)) {
-    stats.balance += 50;
-    showMessage(`✨ Menang 50 koin! ${a.name} - ${b.name} - ${c.name}`, 'win');
-    stats.history.push(`${timestamp} - Menang 50 koin`);
+    winAmount = currentBet * 50;
+    stats.balance += winAmount;
+    showMessage(`✨ MENANG ${winAmount} koin (x50)! ${a.name} - ${b.name} - ${c.name}`, 'win');
+    stats.history.push(`${timestamp} - MENANG BET:${currentBet} WIN:+${winAmount}`);
   } else {
-    stats.balance -= 100;
-    showMessage(`😅 Kalah! -100 koin. ${a.name} - ${b.name} - ${c.name}`, 'lose');
-    stats.history.push(`${timestamp} - Kalah -100 koin`);
+    showMessage(`😅 KALAH ${currentBet} koin. ${a.name} - ${b.name} - ${c.name}`, 'lose');
+    stats.history.push(`${timestamp} - KALAH BET:${currentBet} LOSS:-${currentBet}`);
   }
 }
 
@@ -504,6 +583,7 @@ function reset() {
       spins: 0,
       wins: 0,
       balance: 1000,
+      totalBet: 0,
       history: []
     };
     localStorage.removeItem('slotStats');
