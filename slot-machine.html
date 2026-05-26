@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mesin Slot</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4ade80;
+    }
+
+    .balance {
+      font-size: 20px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(74, 222, 128, 0.1);
+      border-left: 4px solid #4ade80;
+      border-radius: 5px;
+    }
+
+    .slots-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 30px 0;
+    }
+
+    .box {
+      font-size: 60px;
+      padding: 20px;
+      border: 4px solid #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .box.spin {
+      animation: shake 0.1s infinite;
+      background: rgba(251, 191, 36, 0.2);
+    }
+
+    @keyframes shake {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(8px); }
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    #spinBtn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      min-width: 150px;
+    }
+
+    #spinBtn:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    #spinBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #resetBtn {
+      background: #ef4444;
+      color: white;
+      min-width: 120px;
+    }
+
+    #resetBtn:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 18px;
+      min-height: 25px;
+      display: none;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.jackpot {
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+      border-left: 4px solid #22c55e;
+    }
+
+    .message.lose {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border-left: 4px solid #ef4444;
+    }
+
+    .message.win {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .info {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    .results-history {
+      margin-top: 20px;
+      max-height: 150px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .history-item {
+      padding: 8px;
+      margin: 5px 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🎰 MESIN SLOT</h1>
+
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-label">Putaran</div>
+      <div class="stat-value" id="spins">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Kemenangan</div>
+      <div class="stat-value" id="wins">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Tingkat Menang</div>
+      <div class="stat-value" id="winRate">0%</div>
+    </div>
+  </div>
+
+  <div class="balance">
+    💰 Saldo: <span id="balance">1000</span> Koin
+  </div>
+
+  <div class="slots-container">
+    <div class="box" id="slot1">❓</div>
+    <div class="box" id="slot2">❓</div>
+    <div class="box" id="slot3">❓</div>
+  </div>
+
+  <div class="buttons">
+    <button id="spinBtn" onclick="spin()">🎯 PUTAR</button>
+    <button id="resetBtn" onclick="reset()">🔄 RESET</button>
+  </div>
+
+  <div class="message" id="message"></div>
+
+  <div class="results-history" id="history"></div>
+
+  <div class="info">
+    <p>✨ Ketiga simbol harus sama untuk mendapatkan jackpot!</p>
+    <p>🏆 Jackpot: +200 Koin | Menang: +50 Koin | Kalah: -10 Koin</p>
+  </div>
+</div>
+
+<script>
+const symbols = ["🍒", "🍋", "🍊", "🍉", "⭐", "🔔"];
+
+let stats = {
+  spins: 0,
+  wins: 0,
+  balance: 1000,
+  history: []
+};
+
+let isSpinning = false;
+
+function loadStats() {
+  const saved = localStorage.getItem('slotStats');
+  if (saved) {
+    stats = JSON.parse(saved);
+    updateDisplay();
+  }
+}
+
+function saveStats() {
+  localStorage.setItem('slotStats', JSON.stringify(stats));
+}
+
+function updateDisplay() {
+  document.getElementById('spins').textContent = stats.spins;
+  document.getElementById('wins').textContent = stats.wins;
+  document.getElementById('balance').textContent = stats.balance;
+  
+  const winRate = stats.spins > 0 ? Math.round((stats.wins / stats.spins) * 100) : 0;
+  document.getElementById('winRate').textContent = winRate + '%';
+  
+  updateHistory();
+}
+
+function updateHistory() {
+  const historyDiv = document.getElementById('history');
+  if (stats.history.length === 0) {
+    historyDiv.innerHTML = '<p style="color: #666;">Belum ada riwayat</p>';
+    return;
+  }
+  
+  historyDiv.innerHTML = stats.history.slice(-5).reverse().map(item => 
+    `<div class="history-item">${item}</div>`
+  ).join('');
+}
+
+function spin() {
+  if (isSpinning || stats.balance < 10) {
+    if (stats.balance < 10) {
+      showMessage('❌ Saldo tidak cukup! Reset permainan untuk bermain lagi.', 'lose');
+    }
+    return;
+  }
+
+  isSpinning = true;
+  document.getElementById('spinBtn').disabled = true;
+  
+  stats.balance -= 10;
+  stats.spins += 1;
+
+  const slots = [
+    document.getElementById('slot1'),
+    document.getElementById('slot2'),
+    document.getElementById('slot3')
+  ];
+
+  slots.forEach(slot => slot.classList.add('spin'));
+
+  const interval = setInterval(() => {
+    slots.forEach(slot => {
+      slot.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    });
+  }, 100);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    slots.forEach(slot => slot.classList.remove('spin'));
+
+    const results = slots.map(slot => 
+      symbols[Math.floor(Math.random() * symbols.length)]
+    );
+
+    slots.forEach((slot, index) => {
+      slot.textContent = results[index];
+    });
+
+    const [a, b, c] = results;
+    checkResult(a, b, c);
+
+    isSpinning = false;
+    document.getElementById('spinBtn').disabled = false;
+    
+    saveStats();
+    updateDisplay();
+  }, 2000);
+}
+
+function checkResult(a, b, c) {
+  const timestamp = new Date().toLocaleTimeString('id-ID');
+  
+  if (a === b && b === c) {
+    stats.wins += 1;
+    stats.balance += 200;
+    showMessage(`🎉 JACKPOT! Anda menang 200 koin! ${a} ${b} ${c}`, 'jackpot');
+    stats.history.push(`${timestamp} - JACKPOT! ${a} ${b} ${c} (+200 koin)`);
+  } else if ((a === b) || (b === c) || (a === c)) {
+    stats.balance += 50;
+    showMessage(`✨ Menang 50 koin! ${a} ${b} ${c}`, 'win');
+    stats.history.push(`${timestamp} - Menang 50 koin ${a} ${b} ${c}`);
+  } else {
+    showMessage(`😅 Coba lagi! ${a} ${b} ${c}`, 'lose');
+    stats.history.push(`${timestamp} - Kalah ${a} ${b} ${c}`);
+  }
+}
+
+function showMessage(text, type) {
+  const messageDiv = document.getElementById('message');
+  messageDiv.textContent = text;
+  messageDiv.className = `message show ${type}`;
+  
+  setTimeout(() => {
+    messageDiv.classList.remove('show');
+  }, 3000);
+}
+
+function reset() {
+  if (confirm('⚠️ Yakin ingin mereset semua data?')) {
+    stats = {
+      spins: 0,
+      wins: 0,
+      balance: 1000,
+      history: []
+    };
+    localStorage.removeItem('slotStats');
+    updateDisplay();
+    showMessage('🔄 Data telah direset!', 'win');
+  }
+}
+
+loadStats();
+</script>
+
+</body>
+</html>
