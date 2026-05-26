@@ -242,7 +242,7 @@
 
   <div class="info">
     <p>✨ Ketiga simbol harus sama untuk mendapatkan jackpot!</p>
-    <p>🏆 Jackpot: +200 Koin | Menang: +50 Koin | Kalah: -10 Koin</p>
+    <p>🏆 Jackpot: +200 Koin | Menang: +50 Koin | Kalah: -100 Koin</p>
   </div>
 </div>
 
@@ -357,8 +357,9 @@ function checkResult(a, b, c) {
     showMessage(`✨ Menang 50 koin! ${a} ${b} ${c}`, 'win');
     stats.history.push(`${timestamp} - Menang 50 koin ${a} ${b} ${c}`);
   } else {
-    showMessage(`😅 Coba lagi! ${a} ${b} ${c}`, 'lose');
-    stats.history.push(`${timestamp} - Kalah ${a} ${b} ${c}`);
+    stats.balance -= 100;
+    showMessage(`😅 Kalah! -100 koin ${a} ${b} ${c}`, 'lose');
+    stats.history.push(`${timestamp} - Kalah -100 koin ${a} ${b} ${c}`);
   }
 }
 
