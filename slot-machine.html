@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mesin Slot</title>
+  <title>Mesin Slot Mahjong</title>
   <style>
     * {
       margin: 0;
@@ -11,7 +11,7 @@
 
     body {
       text-align: center;
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       min-height: 100vh;
@@ -19,9 +19,9 @@
     }
 
     .container {
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.9);
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
@@ -72,34 +72,77 @@
     .slots-container {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin: 30px 0;
+      gap: 15px;
+      margin: 40px 0;
+      perspective: 1000px;
     }
 
-    .box {
-      font-size: 60px;
-      padding: 20px;
-      border: 4px solid #fbbf24;
+    .tile {
+      width: 120px;
+      height: 150px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 10px;
-      width: 100px;
-      height: 100px;
-      background: rgba(255, 255, 255, 0.05);
+      font-size: 50px;
+      cursor: default;
+      font-weight: bold;
       transition: all 0.3s ease;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      border: 3px solid #fbbf24;
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      position: relative;
+      overflow: hidden;
     }
 
-    .box.spin {
-      animation: shake 0.1s infinite;
-      background: rgba(251, 191, 36, 0.2);
+    .tile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+      pointer-events: none;
     }
 
-    @keyframes shake {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(8px); }
+    .tile.spin {
+      animation: tileFlip 0.15s infinite;
     }
+
+    @keyframes tileFlip {
+      0%, 100% { transform: rotateY(0deg) rotateX(0deg) scale(1); }
+      50% { transform: rotateY(180deg) rotateX(10deg) scale(1.05); }
+    }
+
+    .tile-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tile-icon {
+      font-size: 60px;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .tile-name {
+      font-size: 10px;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tile-dragon { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); }
+    .tile-phoenix { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); }
+    .tile-tiger { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); }
+    .tile-crane { background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%); }
+    .tile-plum { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
+    .tile-chrysanthemum { background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); }
 
     .buttons {
       display: flex;
@@ -152,10 +195,23 @@
       font-size: 18px;
       min-height: 25px;
       display: none;
+      font-weight: bold;
     }
 
     .message.show {
       display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .message.jackpot {
@@ -181,6 +237,9 @@
       font-size: 13px;
       color: #888;
       line-height: 1.6;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 8px;
     }
 
     .results-history {
@@ -199,12 +258,34 @@
       border-radius: 5px;
       font-size: 13px;
     }
+
+    .tile-guide {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .guide-item {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .guide-icon {
+      font-size: 24px;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>🎰 MESIN SLOT</h1>
+  <h1>🎰 MESIN SLOT MAHJONG</h1>
 
   <div class="stats">
     <div class="stat-item">
@@ -226,9 +307,24 @@
   </div>
 
   <div class="slots-container">
-    <div class="box" id="slot1">❓</div>
-    <div class="box" id="slot2">❓</div>
-    <div class="box" id="slot3">❓</div>
+    <div class="tile tile-dragon" id="tile1">
+      <div class="tile-content">
+        <div class="tile-icon">🐉</div>
+        <div class="tile-name">Naga</div>
+      </div>
+    </div>
+    <div class="tile tile-phoenix" id="tile2">
+      <div class="tile-content">
+        <div class="tile-icon">🦅</div>
+        <div class="tile-name">Phoenix</div>
+      </div>
+    </div>
+    <div class="tile tile-tiger" id="tile3">
+      <div class="tile-content">
+        <div class="tile-icon">🐅</div>
+        <div class="tile-name">Harimau</div>
+      </div>
+    </div>
   </div>
 
   <div class="buttons">
@@ -238,16 +334,32 @@
 
   <div class="message" id="message"></div>
 
-  <div class="results-history" id="history"></div>
+  <div class="tile-guide">
+    <div class="guide-item"><span class="guide-icon">🐉</span> Naga +200</div>
+    <div class="guide-item"><span class="guide-icon">🦅</span> Phoenix +50</div>
+    <div class="guide-item"><span class="guide-icon">🐅</span> Harimau +50</div>
+    <div class="guide-item"><span class="guide-icon">🦆</span> Crane +50</div>
+    <div class="guide-item"><span class="guide-icon">🌸</span> Bunga +50</div>
+    <div class="guide-item"><span class="guide-icon">🌼</span> Bunga Chrysant +50</div>
+  </div>
 
   <div class="info">
-    <p>✨ Ketiga simbol harus sama untuk mendapatkan jackpot!</p>
+    <p>✨ Tiga tile yang sama = JACKPOT!</p>
     <p>🏆 Jackpot: +200 Koin | Menang: +50 Koin | Kalah: -100 Koin</p>
   </div>
+
+  <div class="results-history" id="history"></div>
 </div>
 
 <script>
-const symbols = ["🍒", "🍋", "🍊", "🍉", "⭐", "🔔"];
+const tiles = [
+  { emoji: '🐉', name: 'Naga', value: 'dragon', class: 'tile-dragon' },
+  { emoji: '🦅', name: 'Phoenix', value: 'phoenix', class: 'tile-phoenix' },
+  { emoji: '🐅', name: 'Harimau', value: 'tiger', class: 'tile-tiger' },
+  { emoji: '🦆', name: 'Crane', value: 'crane', class: 'tile-crane' },
+  { emoji: '🌸', name: 'Bunga Plum', value: 'plum', class: 'tile-plum' },
+  { emoji: '🌼', name: 'Chrysant', value: 'chrysanthemum', class: 'tile-chrysanthemum' }
+];
 
 let stats = {
   spins: 0,
@@ -293,6 +405,19 @@ function updateHistory() {
   ).join('');
 }
 
+function getRandomTile() {
+  return tiles[Math.floor(Math.random() * tiles.length)];
+}
+
+function createTileHTML(tile) {
+  return `
+    <div class="tile-content">
+      <div class="tile-icon">${tile.emoji}</div>
+      <div class="tile-name">${tile.name}</div>
+    </div>
+  `;
+}
+
 function spin() {
   if (isSpinning || stats.balance < 10) {
     if (stats.balance < 10) {
@@ -307,34 +432,34 @@ function spin() {
   stats.balance -= 10;
   stats.spins += 1;
 
-  const slots = [
-    document.getElementById('slot1'),
-    document.getElementById('slot2'),
-    document.getElementById('slot3')
+  const tileElements = [
+    document.getElementById('tile1'),
+    document.getElementById('tile2'),
+    document.getElementById('tile3')
   ];
 
-  slots.forEach(slot => slot.classList.add('spin'));
+  tileElements.forEach(tile => tile.classList.add('spin'));
 
   const interval = setInterval(() => {
-    slots.forEach(slot => {
-      slot.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    tileElements.forEach(tile => {
+      const randomTile = getRandomTile();
+      tile.innerHTML = createTileHTML(randomTile);
+      tile.className = `tile ${randomTile.class} spin`;
     });
   }, 100);
 
   setTimeout(() => {
     clearInterval(interval);
-    slots.forEach(slot => slot.classList.remove('spin'));
+    tileElements.forEach(tile => tile.classList.remove('spin'));
 
-    const results = slots.map(slot => 
-      symbols[Math.floor(Math.random() * symbols.length)]
-    );
+    const results = tileElements.map(() => getRandomTile());
 
-    slots.forEach((slot, index) => {
-      slot.textContent = results[index];
+    results.forEach((result, index) => {
+      tileElements[index].innerHTML = createTileHTML(result);
+      tileElements[index].className = `tile ${result.class}`;
     });
 
-    const [a, b, c] = results;
-    checkResult(a, b, c);
+    checkResult(results[0], results[1], results[2]);
 
     isSpinning = false;
     document.getElementById('spinBtn').disabled = false;
@@ -347,19 +472,19 @@ function spin() {
 function checkResult(a, b, c) {
   const timestamp = new Date().toLocaleTimeString('id-ID');
   
-  if (a === b && b === c) {
+  if (a.value === b.value && b.value === c.value) {
     stats.wins += 1;
     stats.balance += 200;
-    showMessage(`🎉 JACKPOT! Anda menang 200 koin! ${a} ${b} ${c}`, 'jackpot');
-    stats.history.push(`${timestamp} - JACKPOT! ${a} ${b} ${c} (+200 koin)`);
-  } else if ((a === b) || (b === c) || (a === c)) {
+    showMessage(`🎉 JACKPOT! 3x ${a.name}! Anda menang 200 koin!`, 'jackpot');
+    stats.history.push(`${timestamp} - JACKPOT! 3x ${a.name} (+200 koin)`);
+  } else if ((a.value === b.value) || (b.value === c.value) || (a.value === c.value)) {
     stats.balance += 50;
-    showMessage(`✨ Menang 50 koin! ${a} ${b} ${c}`, 'win');
-    stats.history.push(`${timestamp} - Menang 50 koin ${a} ${b} ${c}`);
+    showMessage(`✨ Menang 50 koin! ${a.name} - ${b.name} - ${c.name}`, 'win');
+    stats.history.push(`${timestamp} - Menang 50 koin`);
   } else {
     stats.balance -= 100;
-    showMessage(`😅 Kalah! -100 koin ${a} ${b} ${c}`, 'lose');
-    stats.history.push(`${timestamp} - Kalah -100 koin ${a} ${b} ${c}`);
+    showMessage(`😅 Kalah! -100 koin. ${a.name} - ${b.name} - ${c.name}`, 'lose');
+    stats.history.push(`${timestamp} - Kalah -100 koin`);
   }
 }
 
